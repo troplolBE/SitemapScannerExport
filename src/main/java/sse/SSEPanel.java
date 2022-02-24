@@ -20,16 +20,18 @@ import java.util.List;
 
 public class SSEPanel extends JPanel {
 
-    private transient IBurpExtenderCallbacks callbacks;
-    private transient JComboBox<String> delimiters;
+    private final transient IBurpExtenderCallbacks callbacks;
+    private JComboBox<String> delimiters;
     private JCheckBox outer_scope;
     private JCheckBox st_only;
     private JCheckBox sc_only;
     private JTextField dirField;
     private String filepath;
+    private final List<String> options;
 
     public SSEPanel(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
+        this.options = new ArrayList<>();
 
         initComponents();
     }
@@ -59,8 +61,13 @@ public class SSEPanel extends JPanel {
                 }
             }
         });
-        JLabel options = new JLabel("Options:");
-        options.setFont(new Font("Tahoma", Font.BOLD, 14));
+        // Options
+        JLabel optionsLabel = new JLabel("Export options:");
+        optionsLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
+        optionsLabel.setForeground(new Color(235, 136, 0));
+        // general options
+        JLabel g_opt = new JLabel("General:");
+        g_opt.setFont(new Font("Tahoma", Font.PLAIN, 14));
         this.outer_scope = new JCheckBox("Include data from outer scope ?");
         this.st_only = new JCheckBox("Export only the sitemap", true);
         this.st_only.addActionListener(new ActionListener() {
@@ -77,6 +84,67 @@ public class SSEPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if ((sc_only.isSelected()) && (st_only.isSelected())) {
                     st_only.setSelected(false);
+                }
+            }
+        });
+        // Sitemap options
+        JLabel site_opt = new JLabel("Sitemap:");
+        site_opt.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        JCheckBox exp_com_opt = new JCheckBox("Export comment");
+        exp_com_opt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (exp_com_opt.isSelected()) {
+                    options.add("comment");
+                } else {
+                    options.remove("comment");
+                }
+            }
+        });
+        // Scan issues options
+        JLabel scan_opt = new JLabel("Scan issues:");
+        scan_opt.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        JCheckBox exp_idet_opt = new JCheckBox("Export issue detail");
+        exp_idet_opt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (exp_idet_opt.isSelected()) {
+                    options.add("issue_detail");
+                } else {
+                    options.remove("issue_detail");
+                }
+            }
+        });
+        JCheckBox exp_sev_opt = new JCheckBox("Export severity");
+        exp_sev_opt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (exp_sev_opt.isSelected()) {
+                    options.add("severity");
+                } else {
+                    options.remove("severity");
+                }
+            }
+        });
+        JCheckBox exp_con_opt = new JCheckBox("Export confidence");
+        exp_con_opt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (exp_con_opt.isSelected()) {
+                    options.add("confidence");
+                } else {
+                    options.remove("confidence");
+                }
+            }
+        });
+        JCheckBox exp_msg_opt = new JCheckBox("Export other urls", true);
+        exp_msg_opt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (exp_msg_opt.isSelected()) {
+                    options.add("messages");
+                } else {
+                    options.remove("messages");
                 }
             }
         });
@@ -121,10 +189,18 @@ public class SSEPanel extends JPanel {
                                         .addComponent(dirField, GroupLayout.PREFERRED_SIZE, 350,
                                                 GroupLayout.PREFERRED_SIZE)
                                         .addComponent(select_dir)
-                                        .addComponent(options)
+                                        .addComponent(optionsLabel)
+                                        .addComponent(g_opt)
                                         .addComponent(outer_scope)
                                         .addComponent(st_only)
                                         .addComponent(sc_only)
+                                        .addComponent(site_opt)
+                                        .addComponent(exp_com_opt)
+                                        .addComponent(scan_opt)
+                                        .addComponent(exp_idet_opt)
+                                        .addComponent(exp_sev_opt)
+                                        .addComponent(exp_con_opt)
+                                        .addComponent(exp_msg_opt)
                                         .addComponent(export)
                                 )
                         )
@@ -144,11 +220,19 @@ public class SSEPanel extends JPanel {
                                 .addComponent(dirField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
                                         GroupLayout.PREFERRED_SIZE)
                                 .addGap(15)
-                                .addComponent(select_dir).addGap(15)
-                                .addComponent(options).addGap(15)
+                                .addComponent(select_dir).addGap(25)
+                                .addComponent(optionsLabel).addGap(15)
+                                .addComponent(g_opt).addGap(15)
                                 .addComponent(outer_scope).addGap(15)
                                 .addComponent(st_only).addGap(15)
                                 .addComponent(sc_only).addGap(15)
+                                .addComponent(site_opt).addGap(15)
+                                .addComponent(exp_com_opt).addGap(15)
+                                .addComponent(scan_opt).addGap(15)
+                                .addComponent(exp_idet_opt).addGap(15)
+                                .addComponent(exp_sev_opt).addGap(15)
+                                .addComponent(exp_con_opt).addGap(15)
+                                .addComponent(exp_msg_opt).addGap(15)
                                 .addComponent(export)
                         )
         );
@@ -234,8 +318,6 @@ public class SSEPanel extends JPanel {
             alert("We are fucked");
         }
 
-        List<String> options = get_options();
-
         // Write to csv file
         CSVWriter writer = new CSVWriter(new FileWriter(filepath), delimiter, '"', ICSVWriter.NO_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
         writer.writeNext(Site.get_csv_headers(options));
@@ -244,12 +326,6 @@ public class SSEPanel extends JPanel {
             writer.writeNext(site.to_csv(options));
         }
         writer.close();
-    }
-
-    private List<String> get_options() {
-        List<String> options = new ArrayList<>();
-        options.add("url");
-        return options;
     }
 
     private void save_issues(char delimiter) throws IOException {
@@ -286,8 +362,6 @@ public class SSEPanel extends JPanel {
             }
         }
         issues = no_duplicates;
-
-        List<String> options = get_options();
 
         // Write to csv file
         CSVWriter writer = new CSVWriter(new FileWriter(filepath), delimiter, '"', ICSVWriter.NO_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
