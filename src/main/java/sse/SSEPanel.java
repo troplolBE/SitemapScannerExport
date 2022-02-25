@@ -21,13 +21,13 @@ import java.util.List;
 public class SSEPanel extends JPanel {
 
     private final transient IBurpExtenderCallbacks callbacks;
+    private final List<String> options;
     private JComboBox<String> delimiters;
     private JCheckBox outer_scope;
     private JCheckBox st_only;
     private JCheckBox sc_only;
     private JTextField dirField;
     private String filepath;
-    private final List<String> options;
 
     public SSEPanel(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
@@ -315,7 +315,7 @@ public class SSEPanel extends JPanel {
         sites = no_duplicates;
 
         if (sites.size() <= 0) {
-            alert("We are fucked");
+            alert("No sites left to export :/");
         }
 
         // Write to csv file

@@ -21,6 +21,8 @@ public class Site {
     }
 
     public String getComment() {
+        if (comment == null)
+            return "";
         return comment;
     }
 
@@ -34,7 +36,7 @@ public class Site {
         list.add(request.getUrl().getProtocol() + "://" + request.getUrl().getHost() + request.getUrl().getPath());
         list.add(String.valueOf(request.getUrl().getPort()));
         if (options.contains("comment")) {
-            list.add(comment);
+            list.add(getComment());
         }
 
         return new String[]{request.getUrl().getProtocol() + "://" + request.getUrl().getHost() +
